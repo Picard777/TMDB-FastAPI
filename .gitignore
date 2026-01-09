@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+.env
+tmdb-fastapi.pyc
+.idea/
+.vscode/
+postgres_data/
