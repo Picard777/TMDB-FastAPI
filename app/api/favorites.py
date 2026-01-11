@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, status
 from app.schemas.favorite import FavoriteCreate
 from app.schemas.favorite import FavoriteRead
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from app.db.deps import get_db
 from app.models.favorite import FavoriteMovie
 from app.services.tmdb_client import TMDBClient
@@ -22,7 +23,11 @@ async def get_favorite_movies(db: Session = Depends(get_db)):
         })
     return results
 
-@router.post("/movies", response_model=FavoriteRead)
+@router.post("/movies/{movieid}", response_model=FavoriteRead, status_code=status.HTTP_201_CREATED, responses = {
+    409: {
+        "description": "Movie already in favorites"}
+    }
+)
 def add_favorite_movie(
     favorite: FavoriteCreate,
     db: Session = Depends(get_db),
@@ -31,15 +36,19 @@ def add_favorite_movie(
     db.add(db_favorite)
     try:
         db.commit()
-    except Exception:
+    except IntegrityError:
         db.rollback()
-        raise HTTPException(status_code=409, detail="Movie already in favorites"
+        raise HTTPException(
+            status_code=409,
+            detail="Movie already in favorites"
         )
     db.refresh(db_favorite)
     return db_favorite
 
-@router.delete("/movies/{movie_id}", response_model=FavoriteCreate)
-def remove_favorite_movie(movie_id: int, db: Session = Depends(get_db)):
+@router.delete("/movies/{movie_id}", status_code=204)
+def remove_favorite_movie(
+    movie_id: int, 
+    db: Session = Depends(get_db)):
     db_favorite = db.query(FavoriteMovie).filter(
         FavoriteMovie.movie_id == movie_id
         ).first()

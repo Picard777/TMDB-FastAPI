@@ -6,7 +6,7 @@ class FavoriteMovie(Base):
     __tablename__ = "favorites"
     
     id = Column(Integer, primary_key=True)
-    movie_id = Column(Integer, nullable=False)
+    movie_id = Column(Integer, nullable=False, unique=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     
     _table_args__ = (
