@@ -70,7 +70,10 @@ API will be available at:
 	•	Improved error handling
 
 ## Author
-Picard777
-Aspiring Python Developer
+
+Max/Picard777
+
+LICENSE:MIT
+
 
 
