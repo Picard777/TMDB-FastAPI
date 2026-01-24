@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MovieFlix - Your Movie Database</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .search-container {
+            flex: 1;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1.25rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .search-input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #f5576c;
+            box-shadow: 0 0 20px rgba(245, 87, 108, 0.3);
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .tab-btn {
+            padding: 0.5rem 1.5rem;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .tab-btn:hover, .tab-btn.active {
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .movie-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .movie-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+            border-color: #f5576c;
+        }
+
+        .movie-poster {
+            width: 100%;
+            aspect-ratio: 2/3;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .movie-info {
+            padding: 1rem;
+        }
+
+        .movie-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .movie-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .star {
+            color: #ffd700;
+        }
+
+        .favorite-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .favorite-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .favorite-btn.active {
+            color: #f5576c;
+        }
+
+        .favorite-btn:not(.active) {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-container {
+                max-width: 100%;
+            }
+
+            .nav-tabs {
+                justify-content: center;
+            }
+
+            .movies-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 1rem;
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1e1e2e 0%, #2d2d44 100%);
+            border-radius: 20px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-header {
+            position: relative;
+            height: 400px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 2rem;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(0, 0, 0, 0.5);
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+            background: rgba(245, 87, 108, 0.8);
+            transform: rotate(90deg);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">🎬 MovieFlix</div>
+            <div class="search-container">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search for movies...">
+            </div>
+            <div class="nav-tabs">
+                <button class="tab-btn active" data-tab="popular">Popular</button>
+                <button class="tab-btn" data-tab="top-rated">Top Rated</button>
+                <button class="tab-btn" data-tab="favorites">Favorites</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <h2 class="section-title" id="sectionTitle">Popular Movies</h2>
+        <div class="movies-grid" id="moviesGrid">
+            <div class="loading">Loading movies...</div>
+        </div>
+    </main>
+
+    <div class="modal" id="movieModal">
+        <div class="modal-content">
+            <div class="modal-header" id="modalHeader">
+                <button class="close-btn" onclick="closeModal()">×</button>
+                <div class="modal-overlay">
+                    <div class="modal-title" id="modalTitle"></div>
+                    <div class="movie-meta" id="modalMeta"></div>
+                </div>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w500';
+        
+        let currentTab = 'popular';
+        let favorites = new Set();
+        let searchTimeout;
+
+        async function fetchMovies(endpoint) {
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`);
+                const data = await response.json();
+                return data.results || data;
+            } catch (error) {
+                console.error('Error fetching movies:', error);
+                return [];
+            }
+        }
+
+        async function loadFavorites() {
+            try {
+                const data = await fetchMovies('/favorites/movies');
+                favorites = new Set(data.map(fav => fav.movie_id));
+                return data;
+            } catch (error) {
+                console.error('Error loading favorites:', error);
+                return [];
+            }
+        }
+
+        async function toggleFavorite(movieId, title) {
+            try {
+                if (favorites.has(movieId)) {
+                    await fetch(`${API_BASE}/favorites/movies/${movieId}`, {
+                        method: 'DELETE'
+                    });
+                    favorites.delete(movieId);
+                } else {
+                    await fetch(`${API_BASE}/favorites/movies/by-title`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ title })
+                    });
+                    favorites.add(movieId);
+                }
+                
+                updateFavoriteButtons();
+                
+                if (currentTab === 'favorites') {
+                    loadMoviesByTab('favorites');
+                }
+            } catch (error) {
+                console.error('Error toggling favorite:', error);
+            }
+        }
+
+        function updateFavoriteButtons() {
+            document.querySelectorAll('.favorite-btn').forEach(btn => {
+                const movieId = parseInt(btn.dataset.movieId);
+                btn.classList.toggle('active', favorites.has(movieId));
+                btn.textContent = favorites.has(movieId) ? '❤️' : '🤍';
+            });
+        }
+
+        function renderMovies(movies) {
+            const grid = document.getElementById('moviesGrid');
+            
+            if (!movies || movies.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🎬</div>
+                        <h3>No movies found</h3>
+                        <p>Try a different search or category</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = movies.map(movie => {
+                const movieData = movie.details || movie;
+                const posterUrl = movieData.poster_path 
+                    ? `${TMDB_IMAGE_BASE}${movieData.poster_path}`
+                    : '';
+                const rating = movieData.vote_average ? movieData.vote_average.toFixed(1) : 'N/A';
+                const year = movieData.release_date ? movieData.release_date.split('-')[0] : '';
+                
+                return `
+                    <div class="movie-card" onclick="showMovieDetails(${movieData.id})">
+                        <img src="${posterUrl}" alt="${movieData.title}" class="movie-poster" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22300%22%3E%3Crect fill=%22%23667eea%22 width=%22200%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 fill=%22white%22 text-anchor=%22middle%22 dy=%22.3em%22 font-family=%22Arial%22%3ENo Image%3C/text%3E%3C/svg%3E'">
+                        <div class="movie-info">
+                            <div class="movie-title">${movieData.title}</div>
+                            <div class="movie-meta">
+                                <span class="rating">
+                                    <span class="star">★</span>
+                                    ${rating}
+                                </span>
+                                <span>${year}</span>
+                                <button class="favorite-btn ${favorites.has(movieData.id) ? 'active' : ''}" 
+                                        data-movie-id="${movieData.id}"
+                                        onclick="event.stopPropagation(); toggleFavorite(${movieData.id}, '${movieData.title.replace(/'/g, "\\'")}')">
+                                    ${favorites.has(movieData.id) ? '❤️' : '🤍'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function loadMoviesByTab(tab) {
+            currentTab = tab;
+            const grid = document.getElementById('moviesGrid');
+            grid.innerHTML = '<div class="loading">Loading movies...</div>';
+            
+            let movies;
+            let title;
+            
+            switch(tab) {
+                case 'popular':
+                    movies = await fetchMovies('/movies/popular');
+                    title = 'Popular Movies';
+                    break;
+                case 'top-rated':
+                    movies = await fetchMovies('/movies/top-rated');
+                    title = 'Top Rated Movies';
+                    break;
+                case 'favorites':
+                    movies = await fetchMovies('/favorites/movies');
+                    title = 'My Favorites';
+                    break;
+            }
+            
+            document.getElementById('sectionTitle').textContent = title;
+            renderMovies(movies);
+        }
+
+        async function searchMovies(query) {
+            if (!query.trim()) {
+                loadMoviesByTab(currentTab);
+                return;
+            }
+            
+            const grid = document.getElementById('moviesGrid');
+            grid.innerHTML = '<div class="loading">Searching...</div>';
+            
+            const movies = await fetchMovies(`/search/movies?query=${encodeURIComponent(query)}`);
+            document.getElementById('sectionTitle').textContent = `Search Results for "${query}"`;
+            renderMovies(movies);
+        }
+
+        async function showMovieDetails(movieId) {
+            const modal = document.getElementById('movieModal');
+            const details = await fetchMovies(`/movies/${movieId}`);
+            
+            const backdropUrl = details.backdrop_path 
+                ? `${TMDB_IMAGE_BASE.replace('w500', 'w1280')}${details.backdrop_path}`
+                : '';
+            
+            document.getElementById('modalHeader').style.backgroundImage = `url(${backdropUrl})`;
+            document.getElementById('modalTitle').textContent = details.title;
+            document.getElementById('modalMeta').innerHTML = `
+                <span class="rating"><span class="star">★</span> ${details.vote_average?.toFixed(1) || 'N/A'}</span>
+                <span>${details.release_date}</span>
+                <span>${details.runtime} min</span>
+            `;
+            document.getElementById('modalBody').innerHTML = `
+                <p style="margin-bottom: 1rem; line-height: 1.6;">${details.overview || 'No overview available.'}</p>
+                <p><strong>Genres:</strong> ${details.genres?.map(g => g.name).join(', ') || 'N/A'}</p>
+                <p><strong>Status:</strong> ${details.status || 'N/A'}</p>
+                ${details.budget ? `<p><strong>Budget:</strong> $${details.budget.toLocaleString()}</p>` : ''}
+                ${details.revenue ? `<p><strong>Revenue:</strong> $${details.revenue.toLocaleString()}</p>` : ''}
+            `;
+            
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('movieModal').classList.remove('active');
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => searchMovies(e.target.value), 500);
+        });
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById('searchInput').value = '';
+                loadMoviesByTab(btn.dataset.tab);
+            });
+        });
+
+        document.getElementById('movieModal').addEventListener('click', (e) => {
+            if (e.target.id === 'movieModal') closeModal();
+        });
+
+        async function init() {
+            await loadFavorites();
+            await loadMoviesByTab('popular');
+        }
+
+        init();
+    </script>
+</body>
+</html>
